@@ -6,6 +6,9 @@ import subprocess
 import readline
 import random
 import time
+import datetime
+import platform
+import distro
 
 # color variables
 red = '\033[0;31m'
@@ -33,10 +36,18 @@ def printFiglet(text):
 
 def runCommand(cmd):
     args = cmd.split()
-    if args[0] == 'hello-friend':
+    if args[0] == 'helloFriend':
         hello_friend()
     elif args[0] == 'bye':
         bye()
+    elif args[0] == 'time':
+        show_time()
+    elif args[0] == 'date':
+        show_date()
+    elif args[0] == 'day':
+        show_day()
+    elif args[0] == 'whichDistro':
+        which_distro()
     elif args[0] == 'cd':
         try:
             if len(args) > 1:
@@ -62,6 +73,33 @@ def hello_friend():
         os.system(f'sudo openvpn {path}')
     else:
         print("Hey! the file you're trying to use doesn't exist.")
+
+
+def show_time():
+    now = datetime.datetime.now()
+    time_str = now.strftime("%H : %M : %S")
+    print(f"{boldRED}" + pyfiglet.figlet_format(time_str, font='small') + f"{nc}")
+
+
+def show_date():
+    now = datetime.datetime.now()
+    date_str = now.strftime(f"%d / %m / %Y")
+    figlet_str = pyfiglet.figlet_format(date_str, font='small')
+    print(f"{boldRED}" + figlet_str + f"{nc}")
+
+
+def which_distro():
+    dist_name = distro.name(pretty=True)
+    dist_version = distro.version(pretty=True)
+    print(f"{blue}{platform.system()} {dist_name} {dist_version} {platform.machine()}{nc}")
+
+
+def show_day():
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    now = datetime.datetime.now()
+    day_name = days[now.weekday()]
+    print(f"{boldRED}" + pyfiglet.figlet_format(day_name, font='small') + f"{nc}")
+
 
 def bye():
     var1 = f"Goodbye {os.getlogin()}"
