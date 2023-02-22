@@ -10,6 +10,10 @@ import datetime
 import platform
 import distro
 import youtube_dl
+import argparse
+import pefile
+import hashlib
+import re
 
 # color variables
 red = '\033[0;31m'
@@ -61,6 +65,11 @@ def runCommand(cmd):
         split_h()
     elif args[0] == 'defaultTheme':
         defaulttheme()
+    elif args[0] == 'fileinfo':
+        if len(args) > 1:
+            fileinfo(args[1])
+        else:
+            print(f"{red}fileinfo: missing operand{nc}")
     elif args[0] == 'downloadIt':
         url = input("enter the url : ")
         download_video(url)
@@ -90,6 +99,39 @@ def hello_friend():
     else:
         print("Hey! the file you're trying to use doesn't exist.")
 
+
+def fileinfo(path):
+    
+    fsize = os.path.getsize(path)
+    ftype = subprocess.check_output(['file', path]).decode().strip()
+    md5_hash = hashlib.md5(open(path, 'rb').read()).hexdigest()
+    sha256_hash = hashlib.sha256(open(path, 'rb').read()).hexdigest()
+    print(f'file size   : {fsize}')
+    print(f'file type   : {ftype}')
+    print(f'md5 hash    : {md5_hash}')
+    print(f'sha256 hash : {sha256_hash}')
+    if ftype.startswith("PE32") or ftype.startswith("PE32+"):
+        pef = pefile.PE(path)
+        print("PE file info ;~)")
+        print("   Machine: ",hex(pef.FILE_HEADER.Machine))
+        print("   Number of sections: ",hex(pef.FILE_HEADER.NumberOfSections))
+        print("   Machine: ",hex(pef.OPTIONAL_HEADER.AddressOfEntryPoint))
+        print("   Machine: ",hex(pef.OPTIONAL_HEADER.Imagebase))
+        for section in pef.sections:
+            print("    Name:", section.Name.decode().rstrip('\x00'))
+            print("    Virtual address:", hex(section.VirtualAddress))
+            print("    Size of raw data:", hex(section.SizeOfRawData))
+            print("    Entropy:", section.get_entropy())
+            print()
+    print(f'\nrandomness or unpredictability of the data in file (ent) :') 
+    entropy = subprocess.check_output(['ent', path]).decode()
+    match = re.search('Entropy = ([0-9\.]+) bits per byte.', entropy)
+    if match:
+        print("Entropy:", match.group(1))
+    print(f'head : =========================================================>')
+    os.system(f'xxd {path} | head')
+    print(f'tail : =========================================================>')
+    os.system(f'xxd {path} | tail')
 
 def download_video(url):
     ydl_opts = {
