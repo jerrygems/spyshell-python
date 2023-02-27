@@ -14,6 +14,15 @@ import argparse
 import pefile
 import hashlib
 import re
+import requests
+import string
+import os
+import stegano
+from stegano import lsb
+from PIL import UnidentifiedImageError
+
+
+
 
 # color variables
 red = '\033[0;31m'
@@ -57,14 +66,16 @@ def runCommand(cmd):
         revenger()
     elif args[0] == 'grabip':
         grabip()
-    elif args[0] == 'tmux':
-        new_session()
     elif args[0] == 'splitV':
         split_v()
     elif args[0] == 'splitH':
         split_h()
     elif args[0] == 'defaultTheme':
-        defaulttheme()
+        new_session()
+    elif args[0] == 'ohshit':
+        domenum()
+    elif args[0] == 'stegoscanner':
+        stegoscanner()
     elif args[0] == 'fileinfo':
         if len(args) > 1:
             fileinfo(args[1])
@@ -98,6 +109,84 @@ def hello_friend():
         os.system(f'sudo openvpn {path}')
     else:
         print("Hey! the file you're trying to use doesn't exist.")
+
+
+def domenum():
+    domain = input("Enter domain: ")
+    urls = [
+        f"https://dnsdumpster.com/",
+        f"https://crt.sh/?q=%.{domain}&output=json",
+        f"https://securitytrails.com/domain/{domain}/dns",
+        f"https://www.virustotal.com/ui/domains/{domain}/subdomains",
+        f"https://api.hackertarget.com/hostsearch/?q={domain}",
+        f"https://www.threatcrowd.org/searchApi/v2/domain/report/?domain={domain}",
+    ]
+
+    subdomains = set()
+
+    for url in urls:
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                html = response.text
+                if "dnsdumpster" in url:
+                    for subdomain in re.findall(r'[a-z0-9\.\-]+\.%s' % domain, html):
+                        subdomains.add(subdomain)
+                elif "crt.sh" in url:
+                    for match in re.findall(r'"name_value":"(.*?)",', html):
+                        subdomain = match.strip()
+                        if subdomain.endswith(domain):
+                            subdomains.add(subdomain)
+                elif "securitytrails" in url:
+                    subdomains_list = re.findall(r'data-target-value="([^"]*)"', html)
+                    for subdomain in subdomains_list:
+                        if "\\n" in subdomain:
+                            subdomain = subdomain.replace("\\n", "\n")
+                            subdomain = subdomain.split("\n")
+                            for sub in subdomain:
+                                if sub.strip() != "":
+                                    subdomains.add(sub)
+                        else:
+                            subdomains.add(subdomain)
+                elif "virustotal" in url:
+                    json_data = response.json()
+                    for subdomain in json_data['data']:
+                        subdomains.add(subdomain['id'].lower())
+                elif "hackertarget" in url:
+                    for subdomain in html.split("\n"):
+                        subdomain = subdomain.strip()
+                        if subdomain != "":
+                            subdomains.add(subdomain)
+                elif "threatcrowd" in url:
+                    json_data = response.json()
+                    for subdomain in json_data['subdomains']:
+                        subdomains.add(subdomain.lower())
+        except Exception as e:
+            print(f"Error fetching subdomains from {url}: {e}")
+
+    subdomains = list(set(subdomains))
+    subdomains_str = "\n".join(subdomains)
+    subdomains_str = subdomains_str.replace("\\n", "\n")
+    filename = f'subdomain_{random.randint(1, 100000)}.txt'
+    filepath = os.path.join('.', filename)
+    with open(filepath, 'w') as f:
+        f.write(subdomains_str)
+
+    print(f"{len(subdomains)} subdomains written to file {filepath}")
+    return subdomains
+
+def stegoscanner():
+    path = input("Enter directory path: ")
+    
+    for filename in os.listdir(path):
+        filepath = os.path.join(path, filename)
+        
+        try:
+            secret_text = lsb.reveal(filepath)
+            print(f"{filename} contains steganographic content.")
+        except:
+            pass
+
 
 
 def fileinfo(path):
@@ -148,6 +237,9 @@ def download_video(url):
 
 
 def defaulttheme():
+    os.system('printf "\033]50;SetProfileParameter=FontSize:12\a"')
+    os.system('printf "\033[1m\033[3m"')
+    os.system('unset TMUX')
     os.system('tmux send-keys -t 0 "tmux split-window -h \' -l 90\';tmux select-pane -t 1" Enter')
     os.system('tmux send-keys -t 0 "tmux select-pane -t 0; tmux split-window -v \'-l 34\';tmux select-pane -t 2" Enter')
     os.system('tmux send-keys -t 0 "tmux select-pane -t 1; tmux split-window -v \'-l 25\';tmux select-pane -t 3" Enter')
@@ -196,11 +288,28 @@ def split_h():
     subprocess.run(['tmux', 'split-window', '-h', '-c', './', 'python3', 'spyshell.py'])
 
 
+def defaultTheme():
+    os.system('printf "\033]50;SetProfileParameter=FontSize:12\a"')
+    os.system('printf "\033[1m\033[3m"')
+    
+    os.system('unset TMUX; tmux send-keys -t 0 "tmux split-window -h \' -l 90\';tmux select-pane -t 1" Enter')
+    os.system('unset TMUX; tmux send-keys -t 0 "tmux select-pane -t 0; tmux split-window -v \'-l 34\';tmux select-pane -t 2" Enter')
+    os.system('unset TMUX; tmux send-keys -t 0 "tmux select-pane -t 1; tmux split-window -v \'-l 25\';tmux select-pane -t 3" Enter')
+    os.system('unset TMUX; tmux send-keys -t 0 "tmux select-pane -t 3; tmux split-window -v \'-l 10\';tmux select-pane -t 4" Enter')
+    os.system('unset TMUX; tmux send-keys -t 0 "tmux select-pane -t 3; tmux split-window -v \'-l 8\';tmux select-pane -t 5" Enter')
+    time.sleep(1)
+    os.system('unset TMUX; tmux send-keys -t 4 "tmux select-pane -t 4; ./asset1;"')
+    os.system('unset TMUX; tmux send-keys -t 4 "" Enter')
+    os.system('clear')
+    
+
 def new_session():
     print(f"enter the session name:")
     sess_name = input()
-    subprocess.run(['tmux', 'new-session', '-n', 'YourSessionName', 'python3', 'spyshell.py'])
+    subprocess.run(['tmux', 'new-session', '-n', sess_name, 'python3', 'spyshell.py'])
     subprocess.run(['tmux', 'set', '-g', 'mouse', 'on'])
+    defaultTheme()
+
 
 
 def show_time():
