@@ -7,6 +7,6 @@
     <b>#2. revenger</b><br>
     <b>#3. fileinfo</b><br>
     <b>#4. grabip</b><br>
-    <b>#5. ohshit ("just for osint")</b>
+    <b>#5. ohshit ("subdomain enum")</b>
   </p>
 </div>
