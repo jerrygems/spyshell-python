@@ -3,10 +3,10 @@
     <img src="assets/icon.png" alt="SpyShell" style="align-items:center;justify-content:center;width:100%;height:500px;" />
   <p>
   <h2>Commands ;-)</h2>
-    <b>#1. stegnoscanner</b>
-    <b>#2. revenger</b>
-    <b>#3. fileinfo</b>
-    <b>#4. grabip</b>
+    <b>#1. stegnoscanner</b><br>
+    <b>#2. revenger</b><br>
+    <b>#3. fileinfo</b><br>
+    <b>#4. grabip</b><br>
     <b>#5. ohshit ("just for osint")</b>
   </p>
 </div>
