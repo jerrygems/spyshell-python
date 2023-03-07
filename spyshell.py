@@ -19,6 +19,7 @@ import string
 import os
 import stegano
 from stegano import lsb
+import threading
 from PIL import UnidentifiedImageError
 
 
@@ -76,14 +77,13 @@ def runCommand(cmd):
         domenum()
     elif args[0] == 'stegoscanner':
         stegoscanner()
+    elif args[0] == 'hey-listen':
+        reverse_shell()
     elif args[0] == 'fileinfo':
         if len(args) > 1:
             fileinfo(args[1])
         else:
             print(f"{red}fileinfo: missing operand{nc}")
-    elif args[0] == 'downloadIt':
-        url = input("enter the url : ")
-        download_video(url)
     elif args[0] == 'cd':
         try:
             if len(args) > 1:
@@ -106,10 +106,51 @@ def hello_friend():
     path = input()
     if os.path.exists(f'{path}'):
         print("please wait connecting with vpn...")
-        os.system(f'sudo openvpn {path}')
+        os.system(f'sudo openvpn {path} 2>/dev/null &')
     else:
         print("Hey! the file you're trying to use doesn't exist.")
 
+
+def handle_connection(conn):
+    while True:
+        data = conn.recv(1024)
+        if not data:
+            break
+        sys.stdout.write(data.decode())
+        sys.stdout.flush()
+
+    conn.close()
+
+def reverse_shell():
+    ip = input("IP to listen on : ")
+    host = str(ip)
+    port = 4444
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((host, port))
+    s.listen(1)
+    print('Listening on {}:{}'.format(host, port))
+    conn, addr = s.accept()
+    print('Connection received from ',addr)
+
+    t = threading.Thread(target=handle_connection, args=(conn,))
+    t.start()
+
+    active = True
+    while active:
+        try:
+            cmds = input() + "\n"
+            conn.send(cmds.encode())
+            if cmds.strip() == "exit":
+                print(";-) killed the terminal successfully")
+                break
+        except:
+            active = False
+
+    s.close()
+
+
+    
 
 def domenum():
     domain = input("Enter domain: ")
@@ -189,51 +230,43 @@ def stegoscanner():
 
 
 
-def fileinfo(path):
-    
-    fsize = os.path.getsize(path)
-    ftype = subprocess.check_output(['file', path]).decode().strip()
-    md5_hash = hashlib.md5(open(path, 'rb').read()).hexdigest()
-    sha256_hash = hashlib.sha256(open(path, 'rb').read()).hexdigest()
-    print(f'file size   : {fsize}')
-    print(f'file type   : {ftype}')
-    print(f'md5 hash    : {md5_hash}')
-    print(f'sha256 hash : {sha256_hash}')
-    if ftype.startswith("PE32") or ftype.startswith("PE32+"):
-        pef = pefile.PE(path)
-        print("PE file info ;~)")
-        print("   Machine: ",hex(pef.FILE_HEADER.Machine))
-        print("   Number of sections: ",hex(pef.FILE_HEADER.NumberOfSections))
-        print("   Machine: ",hex(pef.OPTIONAL_HEADER.AddressOfEntryPoint))
-        print("   Machine: ",hex(pef.OPTIONAL_HEADER.Imagebase))
-        for section in pef.sections:
-            print("    Name:", section.Name.decode().rstrip('\x00'))
-            print("    Virtual address:", hex(section.VirtualAddress))
-            print("    Size of raw data:", hex(section.SizeOfRawData))
-            print("    Entropy:", section.get_entropy())
-            print()
-    print(f'\nrandomness or unpredictability of the data in file (ent) :') 
-    entropy = subprocess.check_output(['ent', path]).decode()
-    match = re.search('Entropy = ([0-9\.]+) bits per byte.', entropy)
-    if match:
-        print("Entropy:", match.group(1))
-    print(f'head : =========================================================>')
-    os.system(f'xxd {path} | head')
-    print(f'tail : =========================================================>')
-    os.system(f'xxd {path} | tail')
 
-def download_video(url):
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': '%(id)s.%(ext)s',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '320',
-        }],
-    }
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+def fileinfo(path):
+    if os.path.isdir(path):
+        # loop over files in directory and call fileinfo on each file
+        for filename in os.listdir(path):
+            fileinfo(os.path.join(path, filename))
+    else:
+        fsize = os.path.getsize(path)
+        ftype = subprocess.check_output(['file', path]).decode().strip()
+        md5_hash = hashlib.md5(open(path, 'rb').read()).hexdigest()
+        sha256_hash = hashlib.sha256(open(path, 'rb').read()).hexdigest()
+        print(f'file size   : {fsize}')
+        print(f'file type   : {ftype}')
+        print(f'md5 hash    : {md5_hash}')
+        print(f'sha256 hash : {sha256_hash}')
+        if ftype.startswith("PE32") or ftype.startswith("PE32+"):
+            pef = pefile.PE(path)
+            print("PE file info ;~)")
+            print("   Machine: ",hex(pef.FILE_HEADER.Machine))
+            print("   Number of sections: ",hex(pef.FILE_HEADER.NumberOfSections))
+            print("   Machine: ",hex(pef.OPTIONAL_HEADER.AddressOfEntryPoint))
+            print("   Machine: ",hex(pef.OPTIONAL_HEADER.Imagebase))
+            for section in pef.sections:
+                print("    Name:", section.Name.decode().rstrip('\x00'))
+                print("    Virtual address:", hex(section.VirtualAddress))
+                print("    Size of raw data:", hex(section.SizeOfRawData))
+                print("    Entropy:", section.get_entropy())
+                print()
+        print(f'\nrandomness or unpredictability of the data in file (ent) :') 
+        entropy = subprocess.check_output(['ent', path]).decode()
+        match = re.search('Entropy = ([0-9\.]+) bits per byte.', entropy)
+        if match:
+            print("Entropy:", match.group(1))
+        print(f'head : =========================================================>')
+        os.system(f'xxd {path} | head')
+        print(f'tail : =========================================================>')
+        os.system(f'xxd {path} | tail')
 
 
 def defaulttheme():
