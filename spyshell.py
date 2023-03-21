@@ -61,6 +61,8 @@ def runCommand(cmd):
         stegoscanner()
     elif args[0] == 'webAnalyzer':
         web_analyzer()
+    elif args[0] == 'heyListen':
+        reverse_shell()
     elif args[0].lower() in ['helpme', 'help-me', 'help me', 'help']:
         help()
     elif args[0] == 'checkWeb':
@@ -141,15 +143,6 @@ def web_analyzer():
     else:
       print("- " + tech)
 
-def handle_connection(conn):
-    while True:
-        data = conn.recv(1024)
-        if not data:
-            break
-        sys.stdout.write(data.decode())
-        sys.stdout.flush()
-
-    conn.close()
 
 def help():
     print("""SpyShell's Commands are listed below : 
@@ -168,6 +161,16 @@ def help():
             more are in progress
             """)
 
+def handle_connection(conn):
+    while True:
+        data = conn.recv(1024)
+        if not data:
+            break
+        sys.stdout.write(data.decode())
+        sys.stdout.flush()
+
+    conn.close()
+    
 def reverse_shell():
     ip = input("IP to listen on : ")
     host = str(ip)
