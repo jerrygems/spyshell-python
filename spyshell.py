@@ -1,7 +1,7 @@
 import os, sys, pyfiglet, socket, subprocess, readline, random, time, datetime, platform, distro, youtube_dl, argparse
 import pefile, hashlib, re, requests, string, stegano
 from stegano import lsb
-import threading, builtwith
+import threading, builtwith, itertools
 from PIL import UnidentifiedImageError
 
 
@@ -63,6 +63,8 @@ def runCommand(cmd):
         web_analyzer()
     elif args[0] == 'heyListen':
         reverse_shell()
+    elif args[0] == 'wordGen':
+        generateList()
     elif args[0].lower() in ['helpme', 'help-me', 'help me', 'help']:
         help()
     elif args[0] == 'checkWeb':
@@ -205,6 +207,19 @@ def reverse_shell():
 
     s.close()
 
+def generateList():
+    words = input("Enter words separated by space: ").split()
+    length = int(input("Enter maximum length of combinations: "))
+    letters = [set(word) for word in words]
+    combinations = itertools.chain.from_iterable(itertools.product(*letters, repeat=i) for i in range(1, length+1))
+
+    filename = input("enter the filename to save data in : ")
+
+    with open(filename, 'w') as f:
+        for combination in combinations:
+            f.write(''.join(combination) + '\n')
+
+    print(f"Wordlist saved to {filename}")
 
     
 
