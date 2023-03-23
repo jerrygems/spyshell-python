@@ -148,7 +148,7 @@ def web_analyzer():
 
 def help():
     print("""SpyShell's Commands are listed below : 
-            1. hey listen
+            1. heyListen
             2. checkweb
             3. stegoscanner
             4. revenger
@@ -160,6 +160,8 @@ def help():
             10. defaultTheme
             11. fileinfo
             12. grabip
+            13. webAnalyzer
+            14. 
             more are in progress
             """)
 
@@ -170,12 +172,7 @@ def handle_connection(conn):
             break
         sys.stdout.write(data.decode())
         sys.stdout.flush()
-
-        # Check if the user has root access
-        if os.geteuid() == 0:
-            # If so, run some commands
-            conn.send("echo 'Hello, root user!'\n".encode())
-            conn.send("ls -la\n".encode())
+        
 
     conn.close()
     
