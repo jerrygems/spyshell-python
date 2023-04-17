@@ -1,5 +1,6 @@
-import os, sys, pyfiglet, socket, subprocess, readline, random, time, datetime, platform, distro, youtube_dl, argparse
+import os, sys, pyfiglet, sockets, subprocess, readline, random, time, datetime, platform, distro, argparse,socket
 import pefile, hashlib, re, requests, string, stegano
+from Wappalyzer import Wappalyzer, WebPage
 from stegano import lsb
 import threading, builtwith, itertools
 from PIL import UnidentifiedImageError
@@ -67,8 +68,6 @@ def runCommand(cmd):
         generateList()
     elif args[0].lower() in ['helpme', 'help-me', 'help me', 'help']:
         help()
-    elif args[0] == 'checkWeb':
-        web_analyzer()
     #koth fun
     elif args[0] == 'ashu@production':
         ashu_at_production()
@@ -131,25 +130,71 @@ def donkey_at_shrek():
                 EOF"""
     subprocess.run(command, shell=True)
 
+def analyze_link(url):
+    print("------------------------------------------")
+    print("------------------------------------------")
+    website_info = builtwith.builtwith(url)
+    print("Technologies and versions used by", url, ":")
+    try:
+        for tech, info in website_info.items():
+            if isinstance(info, list):
+                version = info[0] if info else None
+            else:
+                version = info
+            if version:
+                print("==> " + tech + " " + version)
+            else:
+                print("==> " + tech)
+
+        print("\n[+wappalyzer results]")
+        wappalyzer = Wappalyzer.latest()
+        web = wappalyzer.analyze(url)
+
+        for app in web.apps:
+            print(f"- {app.name} {app.version}")
+
+
+        print("------------------------------------------")
+        print("------------------------------------------")
+    except Exception as err:
+        print(f"[ERROR OCCURRED]")
+
 def web_analyzer():
-  url = input("enter the link : ")
-  website_info = builtwith.builtwith(url)
-  print("Technologies and versions used by", url, ":")
-  for tech, info in website_info.items():
-    if isinstance(info, list):
-      version = info[0] if info else None
-    else:
-      version = info
-    if version:
-      print("- " + tech + " " + version)
-    else:
-      print("- " + tech)
+    ask = int(input("Do you want to analyze a single link or a list of links? \n1. Single link\n2. List of links\nInput: "))
+    if ask == 1:
+        url = str(input("Enter the link: "))
+        analyze_link(url)
+    elif ask == 2:
+        filename = input("Enter the filename containing the links: ")
+        with open(filename, 'r') as f:
+            links = f.readlines()
+
+        analyzed_links = []
+        for link in links:
+            link = f"http://{link.strip()}"
+            try:
+                response = requests.head(link, allow_redirects=True)
+                status_code = response.status_code
+                if status_code == 200 or status_code == 302:
+                    analyzed_links.append(link)
+                else:
+                    domain = link.split('//')[1]
+                    analyzed_links.append(f"https://{domain}")
+            except requests.exceptions.RequestException:
+                analyzed_links.append(None)
+
+        for link in analyzed_links:
+            if link is not None:
+                analyze_link(link)
+            else:
+                print("[ERROR OCCURRED]")
 
 
+    
 def help():
     print("""SpyShell's Commands are listed below : 
             1. heyListen
-            2. checkweb
+            2. webAnalyzer
             3. stegoscanner
             4. revenger
             5. helloFriend
@@ -160,8 +205,7 @@ def help():
             10. defaultTheme
             11. fileinfo
             12. grabip
-            13. webAnalyzer
-            14. 
+            13. 
             more are in progress
             """)
 
@@ -173,13 +217,31 @@ def handle_connection(conn):
         sys.stdout.write(data.decode())
         sys.stdout.flush()
         
-
     conn.close()
     
+def portcheck(host,port):
+    s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    try:
+        
+        s.bind((host,port))
+        print("[PORT OPEN]")
+        return True
+
+    except OSError as err:
+        print(f"[PORT CLOSED] : {err}")
+        return False
+    
+
 def reverse_shell():
-    ip = input("IP to listen on : ")
+    ip = "0.0.0.0"
     host = str(ip)
-    port = 4444
+    port = int(input("[ENTER THE PORT NUMBER]"))
+
+    if portcheck(host,port):
+        print(f"[LISTENING ON PORT {port}]")
+    else:
+        print("[PORT CAN'T BE USED]")
+        return
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
