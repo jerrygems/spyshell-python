@@ -117,9 +117,6 @@ def help():
             15. splitH
             16. domenum
             17. serveHttp
-            18. serveHttp
-            19. serveHttp
-            20. serveHttp
             
             more are in progress
             """)
@@ -355,7 +352,6 @@ def domenum():
         f"https://www.threatcrowd.org/searchApi/v2/domain/report/?domain={domain}",
     ]
     subdomains = set()
-
     for url in urls:
         try:
             response = requests.get(url)
