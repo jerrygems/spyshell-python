@@ -1,6 +1,8 @@
-<div style="width:100%;height:max-content;justify-content:center;align-items:center;background:grey;">
+<div style="width:100%;display:block;height:max-content;justify-content:center;align-items:center;background:grey;">
 	<h1 style="text-align:center;">SpyShell</h1>
-    	<img src="![SpyShell](./asset/SpyShell.png)" alt="SpyShell" style="align-items:center;justify-content:center;width:100%;height:500px;" />
+    	<div style="display:flex;width:100%;">
+        <img src="./asset/SpyShell.png" alt="SpyShell" style="align-items:center;justify-content:center;width:80%;height:600px;margin-left:40%;" />
+      </div>
   <p>
   <h2>Commands ;-)</h2>
     <b>#1. stegnoscanner</b><br>
