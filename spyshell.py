@@ -5,7 +5,7 @@ from stegano import lsb
 import threading, builtwith, itertools
 from PIL import UnidentifiedImageError
 
-
+#pip install sockets stegano python-Wappalyzer builtwith
 
 
 # color variables
